@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+
+
+    body {
+      background-image: url(./bg.jpg);
+      background-repeat: no-repeat;
+      background-size: cover;
+      height: 100vh;
+      width: 100vw;
+      /* position: relative; */
+
+    }
+
+
+    .card {
+      width: 200px;
+      height: 200px;
+      position: relative;
+      /* 設定子元素在3d空間內 */
+      transform-style: preserve-3d;
+      margin: 10px;
+      transition: transform 1s;
+      margin-left: -50px;
+    }
+
+    .card-front {
+      width: 100%;
+      height: 100%;
+      background-image: url(./A_1.png);
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      position: absolute;
+      transform: rotateY(180deg);
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+    }
+
+    .card-back {
+      width: 100%;
+      height: 100%;
+      background-image: url(./back.png);
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      position: absolute;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+    }
+
+    .card-open {
+      transform: rotateY(180deg);
+    }
+
+    #game {
+      width: 75%;
+      display: flex;
+      flex-wrap: wrap;
+      position: absolute;
+      justify-content: center;
+      top: 50%;
+      transform: translate(0, -50%);
+
+    }
+
+    .text {
+      font-size: 36px;
+      color: white;
+    }
+
+    .circle {
+      width: 90%;
+      height: 90%;
+      /* border: chartreuse 1px solid; */
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      justify-content: center;
+      display: flex;
+      text-align: center;
+
+    }
+  </style>
+</head>
+
+<body>
+  <div class="animation1">
+    <div class="animation1_1"></div>
+  </div>
+  <div class="circle">
+
+    <div class="text"></div>
+
+    <div id="game"></div>
+  </div>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js'></script>
+  <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <script>
+    //產生16張卡片
+
+    for (let i = 0; i < 16; i++) {
+      $('#game').append(`
+  <div class="card">
+    <div class ="card-front"></div>
+    <div class ="card-back"></div>
+  </div>
+    `)
+    }
+    //決定數字並打散
+    for (let i = 0; i < 16; i++) {
+      //決定數字
+      const num = i % 8 + 1
+      $('.card').eq(i).find('.card-front').css('background-image', `url(./A_${num}.png)`)
+      $('.card').eq(i).attr('data-card', num)
+
+
+      //打散
+      const target = Math.round(Math.random() * 15)
+      $('.card').eq(target).insertAfter($('.card').eq(i))
+    }
+
+    //翻牌
+    $('#game').on('click', '.card', function () {
+      //最多只能翻兩張牌，且這張牌還沒翻開
+      if ($('.card-open').length < 2 && !$(this).hasClass('card-open')) {
+        $(this).addClass('card-open')
+      }
+      //如果翻開兩張了
+      if ($('.card-open').length === 2) {
+        //如果兩張數字一樣
+        if ($('.card-open').eq(0).attr('data-card') === $('.card-open').eq(1).attr('data-card')) {
+          //使用 card-ok 標記已完成並淡出
+          $('.card-open').addClass('card-ok')
+          $('.card-open .card-front').fadeTo(1000, 0)
+        }
+
+        //不管一不一樣都翻回來
+        setTimeout(() => {
+
+          $('.card-open').each(function () {
+            if ($(this).find('.card-front').css('opacity') != 1) {
+              $(this).css('opacity', 0)
+            }
+          })
+
+          $('.card-open').removeClass('card-open')
+          if ($('.card-ok').length === 16) {
+            Swal.fire({
+              title: '恭喜過關'
+            })
+          }
+        }, 1000)
+      }
+    })
+  </script>
+
+</body>
+
+
+
+</html>
